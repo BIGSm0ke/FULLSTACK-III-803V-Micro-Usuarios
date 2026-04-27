@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.0</version> <!-- Versión estable -->
+        <version>3.3.0</version>
         <relativePath/> 
     </parent>
 
@@ -16,12 +16,13 @@
     <name>ms-usuarios</name>
 
     <properties>
-        <java.version>21</java.version> <!-- Tu versión de Java -->
+        <java.version>21</java.version>
         <spring-cloud.version>2023.0.1</spring-cloud.version>
+        <!-- Definimos la versión de Lombok aquí para consistencia -->
+        <lombok.version>1.18.32</lombok.version>
     </properties>
 
     <dependencies>
-        <!-- Web y JPA para los endpoints y base de datos -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -35,21 +36,19 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Base de Datos H2 -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Lombok para evitar código repetitivo -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- Config Client para escalabilidad futura -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
@@ -61,6 +60,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JJWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -94,6 +94,23 @@
 
     <build>
         <plugins>
+            <!-- Plugin de Compilación: CRÍTICO para evitar el error de Javac Processor -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
