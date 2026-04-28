@@ -1,4 +1,4 @@
-package com.valledelsol.ms_usuarios.ms_usuarios;
+package com.valledelsol.ms_usuarios.ms_usuarios.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,7 +9,6 @@ import com.valledelsol.ms_usuarios.ms_usuarios.dto.LoginRequest;
 import com.valledelsol.ms_usuarios.ms_usuarios.model.Usuario;
 import com.valledelsol.ms_usuarios.ms_usuarios.repository.UsuarioRepository;
 import com.valledelsol.ms_usuarios.ms_usuarios.security.JwtUtils;
-import com.valledelsol.ms_usuarios.ms_usuarios.service.UsuarioService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
