@@ -1,15 +1,14 @@
 package com.valledelsol.ms_usuarios.ms_usuarios.repository;
 
-import java.util.Optional;
-
+import com.valledelsol.ms_usuarios.ms_usuarios.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.valledelsol.ms_usuarios.ms_usuarios.model.Usuario;
+import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     
-    // Método clave para la autenticación
+    // Crucial para el Login: Spring generará la consulta SQL automáticamente
     Optional<Usuario> findByEmail(String email);
 }
