@@ -17,18 +17,18 @@ import com.valledelsol.ms_usuarios.ms_usuarios.model.Usuario;
 import com.valledelsol.ms_usuarios.ms_usuarios.service.UsuarioService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/usuarios")
 public class AuthController {
 
     @Autowired
     private UsuarioService usuarioService;
 
-    @PostMapping("/register")
+    @PostMapping("/registrar")
     public ResponseEntity<Usuario> registrar(@RequestBody Usuario usuario) {
         return ResponseEntity.ok(usuarioService.registrarUsuario(usuario));
     }
 
-    @GetMapping("/usuarios")
+    @GetMapping("/")
     public ResponseEntity<List<Usuario>> listar() {
         return ResponseEntity.ok(usuarioService.listarTodos());
     }
