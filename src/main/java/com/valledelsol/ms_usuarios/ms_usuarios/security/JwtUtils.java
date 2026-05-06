@@ -14,7 +14,9 @@ import java.util.function.Function;
 public class JwtUtils {
 
     // Clave secreta consistente para firmar y validar
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final String SECRET_KEY_STRING = "1a530a4a67486092fcaf4df43fa9bf28359229408f7f488743936ddc8b4a4bcb";
+    
+    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY_STRING.getBytes());
     
     private final int jwtExpirationMs = 86400000; // 24 horas
 
@@ -38,6 +40,19 @@ public class JwtUtils {
         final String username = extractUsername(token);
         return (username.equals(email) && !isTokenExpired(token));
     }
+    public boolean isTokenValid(String token) {
+        try {
+            // Si el token está mal formado, la firma no coincide o expiró, 
+            // la librería lanzará una excepción automáticamente.
+            // Si pasa esta línea sin errores, es que es válido.
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            // Capturamos cualquier error (ej. ExpiredJwtException, SignatureException)
+            System.out.println("Error validando el token: " + e.getMessage());
+            return false;
+        }
+    }
+
 
     // --- MÉTODOS DE APOYO (Privados) ---
 
