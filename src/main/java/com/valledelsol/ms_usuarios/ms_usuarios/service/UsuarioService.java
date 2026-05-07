@@ -28,6 +28,19 @@ public class UsuarioService{
         return usuarioRepository.save(usuario);
     }
 
+    public Usuario buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + email));
+    }
+
+    public String generarToken(String email) {
+        return jwtUtils.generateToken(email);
+    }
+
+    public Usuario actualizarUsuario(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
     public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }

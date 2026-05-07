@@ -3,7 +3,9 @@ package com.valledelsol.ms_usuarios.ms_usuarios.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -13,10 +15,15 @@ import java.util.function.Function;
 @Component
 public class JwtUtils {
 
-    // Clave secreta consistente para firmar y validar
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    
-    private final int jwtExpirationMs = 86400000; // 24 horas
+    private final Key key;
+    private final int jwtExpirationMs;
+
+    public JwtUtils(@Value("${app.jwt.secret}") String secret,
+                    @Value("${app.jwt.expiration}") int expirationMs) {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.jwtExpirationMs = expirationMs;
+    }
 
     // --- 1. GENERAR TOKEN (Ya lo tenías) ---
     public String generateToken(String email) {
