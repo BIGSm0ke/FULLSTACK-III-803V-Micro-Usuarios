@@ -37,6 +37,7 @@ public class AuthController {
         usuario.setNombre((String) body.getOrDefault("name", (String) body.getOrDefault("nombre", "")));
         usuario.setApellido((String) body.getOrDefault("apellido", ""));
         usuario.setTelefono((String) body.getOrDefault("phone", (String) body.getOrDefault("telefono", "")));
+        usuario.setFoto((String) body.getOrDefault("photo", (String) body.getOrDefault("foto", "")));
         usuario.setRol((String) body.getOrDefault("rol", "USER"));
 
         Usuario saved = usuarioService.registrarUsuario(usuario);
@@ -91,6 +92,9 @@ public class AuthController {
             if (updates.containsKey("nombre")) usuario.setNombre(updates.get("nombre"));
             if (updates.containsKey("apellido")) usuario.setApellido(updates.get("apellido"));
             if (updates.containsKey("telefono")) usuario.setTelefono(updates.get("telefono"));
+            if (updates.containsKey("name")) usuario.setNombre(updates.get("name"));
+            if (updates.containsKey("phone")) usuario.setTelefono(updates.get("phone"));
+            if (updates.containsKey("photo")) usuario.setFoto(updates.get("photo"));
             usuarioService.actualizarUsuario(usuario);
             return ResponseEntity.ok(toDTO(usuario));
         } catch (RuntimeException e) {
@@ -125,6 +129,7 @@ public class AuthController {
         dto.setTelefono(u.getTelefono());
         dto.setRol(u.getRol());
         dto.setAdmin("ADMIN".equalsIgnoreCase(u.getRol()));
+        dto.setPhoto(u.getFoto());
         return dto;
     }
 }

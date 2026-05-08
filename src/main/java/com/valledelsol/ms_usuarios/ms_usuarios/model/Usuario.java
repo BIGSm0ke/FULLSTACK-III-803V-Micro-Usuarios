@@ -36,6 +36,9 @@ public class Usuario implements UserDetails { // <--- Paso 1: Agregar el "implem
 
     private String telefono;
 
+    @Column(columnDefinition = "TEXT")
+    private String foto;
+
     // --- PASO 2: Implementar los métodos obligatorios de UserDetails ---
 
     @Override
