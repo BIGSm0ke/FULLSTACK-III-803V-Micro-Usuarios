@@ -135,4 +135,5 @@ void updateProfile_DebeActualizaryRetornar200() throws Exception {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("UP"));
     }
+    
 }

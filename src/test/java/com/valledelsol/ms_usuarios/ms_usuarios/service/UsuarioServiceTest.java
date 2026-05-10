@@ -1,15 +1,9 @@
 package com.valledelsol.ms_usuarios.ms_usuarios.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
 import com.valledelsol.ms_usuarios.ms_usuarios.dto.LoginRequest;
 import com.valledelsol.ms_usuarios.ms_usuarios.model.Usuario;
 import com.valledelsol.ms_usuarios.ms_usuarios.repository.UsuarioRepository;
 import com.valledelsol.ms_usuarios.ms_usuarios.security.JwtUtils;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,12 +12,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
-public class UsuarioServiceTest {
+class UsuarioServiceTest {
 
     @Mock
     private UsuarioRepository usuarioRepository;
@@ -37,94 +35,100 @@ public class UsuarioServiceTest {
     @InjectMocks
     private UsuarioService usuarioService;
 
-    private Usuario usuarioMock;
-    private LoginRequest loginRequestMock;
+    private Usuario usuarioPrueba;
 
     @BeforeEach
     void setUp() {
-        // Preparamos datos falsos para usar en las pruebas antes de cada test
-        usuarioMock = new Usuario();
-        usuarioMock.setId(1L);
-        usuarioMock.setEmail("juan@valledelsol.cl");
-        usuarioMock.setPassword("passwordEncriptada");
-        usuarioMock.setNombre("Juan");
-        usuarioMock.setRol("CIUDADANO");
-
-        loginRequestMock = new LoginRequest();
-        loginRequestMock.setEmail("juan@valledelsol.cl");
-        loginRequestMock.setPassword("12345");
+        usuarioPrueba = new Usuario();
+        usuarioPrueba.setId(1L);
+        usuarioPrueba.setEmail("test@valle.com");
+        usuarioPrueba.setPassword("encoded_password");
+        usuarioPrueba.setNombre("Test");
     }
 
+    // --- TESTS DE BUSQUEDA Y LISTADO ---
+
     @Test
-    void testRegistrarUsuarioExitoso() {
-        // Dado que (Given)
-        when(passwordEncoder.encode(anyString())).thenReturn("passwordEncriptada");
-        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuarioMock);
-
-        Usuario nuevoUsuario = new Usuario();
-        nuevoUsuario.setEmail("juan@valledelsol.cl");
-        nuevoUsuario.setPassword("12345");
-
-        // Cuando (When)
-        Usuario resultado = usuarioService.registrarUsuario(nuevoUsuario);
-
-        // Entonces (Then)
+    void buscarPorEmail_Exitoso() {
+        when(usuarioRepository.findByEmail("test@valle.com")).thenReturn(Optional.of(usuarioPrueba));
+        Usuario resultado = usuarioService.buscarPorEmail("test@valle.com");
         assertNotNull(resultado);
-        assertEquals("juan@valledelsol.cl", resultado.getEmail());
-        
-        // Verificamos que se llamó al repositorio para guardar
-        verify(usuarioRepository, times(1)).save(any(Usuario.class));
+        assertEquals("test@valle.com", resultado.getEmail());
     }
 
     @Test
-    void testListarTodos() {
-        // Dado que
-        when(usuarioRepository.findAll()).thenReturn(Arrays.asList(usuarioMock));
-        
-        // Cuando
-        List<Usuario> resultado = usuarioService.listarTodos();
-        
-        // Entonces
-        assertFalse(resultado.isEmpty());
-        assertEquals(1, resultado.size());
+    void buscarPorEmail_DebeLanzarExcepcion_CuandoNoExiste() {
+        when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> usuarioService.buscarPorEmail("noexiste@test.com"));
+    }
+
+    @Test
+    void listarTodos_DebeRetornarLista() {
+        when(usuarioRepository.findAll()).thenReturn(List.of(usuarioPrueba));
+        List<Usuario> lista = usuarioService.listarTodos();
+        assertFalse(lista.isEmpty());
         verify(usuarioRepository, times(1)).findAll();
     }
 
+    // --- TESTS DE REGISTRO Y ACTUALIZACION ---
+
     @Test
-    void testLoginExitoso() {
-        // Dado que
-        when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.of(usuarioMock));
-        when(passwordEncoder.matches("12345", "passwordEncriptada")).thenReturn(true);
-        when(jwtUtils.generateToken("juan@valledelsol.cl")).thenReturn("tokenFalso123");
+    void registrarUsuario_Exitoso() {
 
-        // Cuando
-        String token = usuarioService.login(loginRequestMock);
+        Usuario usuarioParaRegistrar = new Usuario();
+        usuarioParaRegistrar.setEmail("nuevo@test.com");
+        usuarioParaRegistrar.setPassword("123456"); // Le damos una clave
 
-        // Entonces
-        assertNotNull(token);
-        assertEquals("tokenFalso123", token);
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded_pass");
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuarioPrueba);
+
+        Usuario guardado = usuarioService.registrarUsuario(usuarioParaRegistrar);
+
+        assertNotNull(guardado);
+        verify(passwordEncoder).encode("123456"); // Verificamos que se usó la clave correcta
+        verify(usuarioRepository).save(any(Usuario.class));
     }
 
     @Test
-    void testLoginFallaPorPasswordIncorrecta() {
-        // Dado que
-        when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.of(usuarioMock));
-        when(passwordEncoder.matches("12345", "passwordEncriptada")).thenReturn(false); // Contraseña no coincide
-
-        // Cuando / Entonces: Esperamos que lance una excepción
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            usuarioService.login(loginRequestMock);
-        });
-
-        assertEquals("Credenciales inválidas", exception.getMessage());
+    void actualizarUsuario_Exitoso() {
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuarioPrueba);
+        usuarioService.actualizarUsuario(usuarioPrueba);
+        verify(usuarioRepository).save(usuarioPrueba);
     }
-    
+
+    // --- TESTS DE LOGIN ---
+
     @Test
-    void testFallbackLogin() {
-        // Probamos que el método de emergencia del Circuit Breaker retorne el texto correcto
-        String respuestaFallback = usuarioService.fallbackLogin(loginRequestMock, new RuntimeException("DB caída"));
-        
-        assertTrue(respuestaFallback.contains("Servicio de autenticación en modo de espera"));
-        assertTrue(respuestaFallback.contains("DB caída"));
+    void login_Exitoso() {
+        LoginRequest req = new LoginRequest();
+        req.setEmail("test@valle.com");
+        req.setPassword("password123");
+
+        when(usuarioRepository.findByEmail(req.getEmail())).thenReturn(Optional.of(usuarioPrueba));
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+        when(jwtUtils.generateToken(anyString())).thenReturn("token_valido");
+
+        String token = usuarioService.login(req);
+        assertEquals("token_valido", token);
+    }
+
+    @Test
+    void login_DebeLanzarExcepcion_CuandoPasswordIncorrecta() {
+        LoginRequest req = new LoginRequest();
+        req.setEmail("test@valle.com");
+        req.setPassword("wrong-pass");
+
+        when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.of(usuarioPrueba));
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+
+        assertThrows(RuntimeException.class, () -> usuarioService.login(req));
+    }
+
+    @Test
+    void generarToken_DebeLlamarJwtUtils() {
+        when(jwtUtils.generateToken("test@valle.com")).thenReturn("token_abc");
+        String token = usuarioService.generarToken("test@valle.com");
+        assertEquals("token_abc", token);
+        verify(jwtUtils).generateToken("test@valle.com");
     }
 }

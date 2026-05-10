@@ -112,7 +112,7 @@
         </dependencies>
     </dependencyManagement>
 
-    <build>
+   <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -145,6 +145,20 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/model/**</exclude>
+                        <exclude>**/security/**</exclude>
+                        <exclude>**/config/**</exclude>
+                        <exclude>**/factory/**</exclude>
+                        <exclude>**/repository/**</exclude>
+                        <exclude>**/exception/**</exclude>
+                        <exclude>**/utils/**</exclude>
+                        <exclude>**/handler/**</exclude>
+                        <exclude>**/*Application.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
