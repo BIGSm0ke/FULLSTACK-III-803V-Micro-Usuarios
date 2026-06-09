@@ -131,4 +131,15 @@ class UsuarioServiceTest {
         assertEquals("token_abc", token);
         verify(jwtUtils).generateToken("test@valle.com");
     }
+
+    @Test
+    void login_CuandoUsuarioNoEncontrado_DebeLanzarExcepcion() {
+        LoginRequest req = new LoginRequest();
+        req.setEmail("noexiste@test.com");
+        req.setPassword("123456");
+
+        when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> usuarioService.login(req));
+    }
 }

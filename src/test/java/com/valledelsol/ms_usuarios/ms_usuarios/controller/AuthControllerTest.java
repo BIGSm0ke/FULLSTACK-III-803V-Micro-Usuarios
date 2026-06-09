@@ -135,5 +135,59 @@ void updateProfile_DebeActualizaryRetornar200() throws Exception {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("UP"));
     }
+
+    @Test
+    void getProfile_NoEncontrado_DebeRetornar404() throws Exception {
+        when(usuarioService.buscarPorEmail("noexiste@test.com"))
+                .thenThrow(new RuntimeException("Usuario no encontrado"));
+
+        mockMvc.perform(get("/users/profile")
+                .header("X-User-Name", "noexiste@test.com"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Usuario no encontrado"));
+    }
+
+    @Test
+    void updateProfile_NoEncontrado_DebeRetornar404() throws Exception {
+        Map<String, String> updates = new HashMap<>();
+        updates.put("nombre", "Nuevo");
+
+        when(usuarioService.buscarPorEmail("noexiste@test.com"))
+                .thenThrow(new RuntimeException("Usuario no encontrado"));
+
+        mockMvc.perform(put("/users/profile")
+                .header("X-User-Name", "noexiste@test.com")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updates)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Usuario no encontrado"));
+    }
+
+    @Test
+    void registrar_ConCamposEnIngles_DebeMapearCorrectamente() throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("email", "test@valle.com");
+        body.put("password", "123456");
+        body.put("name", "John");
+        body.put("phone", "+56987654321");
+
+        when(usuarioService.registrarUsuario(any(Usuario.class))).thenReturn(usuarioPrueba);
+        when(usuarioService.generarToken("test@valle.com")).thenReturn("token-english");
+
+        mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("token-english"));
+    }
+
+    @Test
+    void listar_DebeRetornarListaUsuarios() throws Exception {
+        when(usuarioService.listarTodos()).thenReturn(java.util.List.of(usuarioPrueba));
+
+        mockMvc.perform(get("/auth/usuarios"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].email").value("test@valle.com"));
+    }
     
 }
